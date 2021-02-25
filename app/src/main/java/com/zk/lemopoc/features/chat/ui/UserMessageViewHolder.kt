@@ -1,7 +1,6 @@
-package com.zk.lemopoc
+package com.zk.lemopoc.features.chat.ui
 
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
+import com.zk.lemopoc.Message
 import com.zk.lemopoc.databinding.ChatBubbleUserBinding
 
 class UserMessageViewHolder(

@@ -5,12 +5,13 @@
     <application
         android:name=".BotChatApplication"
         android:allowBackup="true"
+        android:windowSoftInputMode="adjustResize"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ChatPOC">
-        <activity android:name=".MainActivity">
+        <activity android:name=".features.chat.ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

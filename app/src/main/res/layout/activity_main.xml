@@ -12,9 +12,9 @@
         android:layout_height="match_parent"
         android:layout_marginBottom="16dp"
         app:layout_constrainedHeight="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@android:color/darker_gray"/>
+        android:layoutAnimation="@anim/layout_animation"
+        app:layout_constraintBottom_toTopOf="@+id/layout_input"
+        app:layout_constraintTop_toTopOf="parent"/>
 
 
     <FrameLayout
@@ -24,40 +24,62 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:id="@+id/selection_layout"
+            android:visibility="gone">
 
+            <androidx.appcompat.widget.AppCompatButton
+                android:background="@android:color/darker_gray"
+                android:id="@+id/yes_button"
+                android:layout_width="0dp"
+                android:text="Yes"
+                android:textColor="@color/black"
+                android:layout_weight="0.5"
+                android:layout_height="match_parent"/>
 
-        <EditText
-            android:layout_marginStart="16dp"
-            android:id="@+id/input_message"
+            <androidx.appcompat.widget.AppCompatButton
+                android:background="@android:color/darker_gray"
+                android:id="@+id/no_button"
+                android:layout_width="0dp"
+                android:text="No"
+                android:textColor="@color/black"
+                android:layout_weight="0.5"
+                android:layout_height="match_parent"/>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/button_send"
-            android:background="@android:color/transparent"
-            android:hint="Enter Message"
-            android:inputType="text"
-            android:maxLines="6"
-            tools:ignore="Autofill"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            android:layout_height="match_parent"
+            android:id="@+id/input_message_layout">
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/button_send"
-            android:layout_width="64dp"
-            android:layout_height="48dp"
-            android:layout_alignParentEnd="true"
-            android:background="?attr/selectableItemBackground"
-            android:src="@drawable/ic_send"
-            android:textColor="@color/design_default_color_primary"
+            <EditText
+                android:layout_marginStart="16dp"
+                android:id="@+id/input_message"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/button_send"
+                android:background="@android:color/transparent"
+                android:hint="Enter Message"
+                android:inputType="text"
+                android:maxLines="6"
+                tools:ignore="Autofill"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"/>
 
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/button_send"
+                android:layout_width="64dp"
+                android:layout_height="48dp"
+                android:layout_alignParentEnd="true"
+                android:background="?attr/selectableItemBackground"
+                android:src="@drawable/ic_send"
+                android:textColor="@color/design_default_color_primary" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.appcompat.widget.LinearLayoutCompat>
 
     </FrameLayout>
 

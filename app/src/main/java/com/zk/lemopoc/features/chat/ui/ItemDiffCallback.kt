@@ -1,6 +1,7 @@
-package com.zk.lemopoc
+package com.zk.lemopoc.features.chat.ui
 
 import androidx.recyclerview.widget.DiffUtil
+import com.zk.lemopoc.Message
 
 class ItemDiffCallback : DiffUtil.ItemCallback<Message>() {
     override fun areItemsTheSame(oldItem: Message, newItem: Message): Boolean {
@@ -8,9 +9,7 @@ class ItemDiffCallback : DiffUtil.ItemCallback<Message>() {
     }
 
     override fun areContentsTheSame(oldItem: Message, newItem: Message): Boolean {
-        return /*oldItem.textInput == newItem.textInput
+        return oldItem.textInput == newItem.textInput
                 && oldItem.isUserMessage == newItem.isUserMessage
-                && oldItem.selection == newItem.selection
-                && oldItem.numberInput == newItem.numberInput*/ false
     }
 }

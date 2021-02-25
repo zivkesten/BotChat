@@ -1,7 +1,8 @@
-package com.zk.lemopoc
+package com.zk.lemopoc.features.chat.ui
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
+import com.zk.lemopoc.Message
 
 abstract class MultiViewViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
