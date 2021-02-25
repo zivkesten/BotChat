@@ -10,7 +10,6 @@ import com.zk.lemopoc.backend.Step
 import com.zk.lemopoc.backend.models.ServerRequest
 import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.features.chat.models.MessageType
-import com.zk.lemopoc.features.chat.repository.Answer
 import com.zk.lemopoc.features.chat.repository.ChatRepository
 import com.zk.lemopoc.features.chat.repository.Content
 import com.zk.lemopoc.features.chat.ui.view.Event
