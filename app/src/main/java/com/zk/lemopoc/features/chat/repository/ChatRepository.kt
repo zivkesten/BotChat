@@ -4,7 +4,7 @@ import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.backend.Server
 import com.zk.lemopoc.backend.models.ServerRequest
 import com.zk.lemopoc.backend.models.ServerResponse
-import com.zk.lemopoc.backend.Steps
+import com.zk.lemopoc.backend.Step
 import com.zk.lemopoc.features.chat.viewModel.createJsonPayload
 import com.zk.lemopoc.features.chat.viewModel.parseServerResponse
 import kotlinx.coroutines.flow.*
@@ -21,7 +21,8 @@ interface ChatRepository {
 }
 data class Answer(
     val message: Message,
-    val currentStep: Steps
+    val currentStep: Step,
+    val restart: Boolean = false
 )
 
 class ChatRepositoryImpl(private val server: Server): ChatRepository {
@@ -30,7 +31,7 @@ class ChatRepositoryImpl(private val server: Server): ChatRepository {
         .map { response -> mapResponseToAnswer(response) }
 
     private fun mapResponseToAnswer(response: ServerResponse): Answer {
-        return Answer(response.message, response.currentSep)
+        return Answer(response.message, response.currentSep, response.restart)
     }
 
     override suspend fun startConversation() {

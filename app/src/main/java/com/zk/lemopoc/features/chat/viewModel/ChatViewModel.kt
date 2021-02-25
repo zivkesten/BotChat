@@ -6,10 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.zk.lemopoc.R
-import com.zk.lemopoc.backend.Steps
+import com.zk.lemopoc.backend.Step
 import com.zk.lemopoc.backend.models.ServerRequest
 import com.zk.lemopoc.backend.models.ServerResponse
 import com.zk.lemopoc.features.chat.models.Message
+import com.zk.lemopoc.features.chat.models.MessageType
 import com.zk.lemopoc.features.chat.repository.Answer
 import com.zk.lemopoc.features.chat.repository.ChatRepository
 import com.zk.lemopoc.features.chat.ui.view.Event
@@ -30,19 +31,31 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
     init {
         viewModelScope.launch {
             repository.answers.collect { answer ->
-                chatList.add(answer.message)
-                _state.value = UiState(messagesData = chatList, inputTypeByStep(answer))
+                if (answer.restart) {
+                    chatList.add(Message(messageType = MessageType.Separator))
+                    _state.value = UiState(
+                        messagesData = chatList,
+                        inputTypeByStep(answer)
+                    )
+                } else {
+                    chatList.add(answer.message)
+                    _state.value = UiState(
+                        messagesData = chatList,
+                        inputTypeByStep(answer)
+                    )
+                }
+
             }
         }
     }
 
     private fun inputTypeByStep(answer: Answer): InputType {
         return when (answer.currentStep) {
-            Steps.ONE -> InputType.TEXT
-            Steps.TWO -> InputType.NUMBER
-            Steps.THREE -> InputType.SELECTION(R.string.yes, R.string.no)
-            Steps.FOUR -> InputType.SELECTION(R.string.restart, R.string.exit)
-            Steps.FIVE -> InputType.NONE
+            Step.ONE -> InputType.TEXT
+            Step.TWO -> InputType.NUMBER
+            Step.THREE -> InputType.SELECTION(R.string.yes, R.string.no)
+            Step.FOUR -> InputType.SELECTION(R.string.restart, R.string.exit)
+            Step.FIVE -> InputType.NONE
         }
     }
 
@@ -52,7 +65,9 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
                sendToServer(event)
                event.message.textInput?.let {
                    chatList.add(event.message)
-                   _state.value = _state.value?.copy(messagesData = chatList)
+                   _state.value = _state.value?.copy(
+                       messagesData = chatList
+                   )
                }
             }
             is Event.StartConversation -> startConversation()

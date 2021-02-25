@@ -10,6 +10,6 @@ class ItemDiffCallback : DiffUtil.ItemCallback<Message>() {
 
     override fun areContentsTheSame(oldItem: Message, newItem: Message): Boolean {
         return oldItem.textInput == newItem.textInput
-                && oldItem.isUserMessage == newItem.isUserMessage
+                && oldItem.messageType == newItem.messageType
     }
 }

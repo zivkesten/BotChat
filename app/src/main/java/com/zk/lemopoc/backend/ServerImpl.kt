@@ -2,6 +2,7 @@ package com.zk.lemopoc.backend
 
 import com.zk.lemopoc.backend.models.ServerResponse
 import com.zk.lemopoc.features.chat.models.Message
+import com.zk.lemopoc.features.chat.models.MessageType
 import com.zk.lemopoc.features.chat.viewModel.createJsonPayload
 import com.zk.lemopoc.features.chat.viewModel.parseServerRequest
 import kotlinx.coroutines.delay
@@ -16,7 +17,7 @@ val serverModule = module {
 
 typealias JsonPayload = String
 
-enum class Steps(val value: Int) {
+enum class Step(val value: Int) {
     ONE(1),
     TWO(2),
     THREE(3),
@@ -32,7 +33,7 @@ interface Server {
 
 class ServerImpl: Server {
 
-    private var currentStep: Steps = Steps.ONE
+    private var currentStep: Step = Step.ONE
 
     private val _answers = MutableSharedFlow<JsonPayload>()
 
@@ -48,75 +49,78 @@ class ServerImpl: Server {
         botMessageByStep(currentStep, prevMsg = request.message)
     }
 
-    private suspend fun botMessageByStep(step: Steps, prevMsg: Message) {
+    private suspend fun botMessageByStep(step: Step, prevMsg: Message) {
         when (step.value) {
-            Steps.ONE.value -> {
+            Step.ONE.value -> {
+                val msg1 =  Message(messageType = MessageType.Bot)
+                _answers.emit(createJsonPayload(ServerResponse(msg1, currentStep, true)))
+                delay(2000)
                 firstStepMessages()
             }
-            Steps.TWO.value -> {
-                delay(1000)
-                val msg1 =  Message("Nice to meet you ${prevMsg.textInput} :) ", isUserMessage = false)
-                val msg2 =  Message("What is your phone number?", isUserMessage = false)
+            Step.TWO.value -> {
+                delay(2000)
+                val msg1 =  Message("Nice to meet you ${prevMsg.textInput} :) ", messageType = MessageType.Bot)
+                val msg2 =  Message("What is your phone number?", messageType = MessageType.Bot)
                 _answers.emit(createJsonPayload(ServerResponse(msg1, currentStep)))
-                delay(1000)
+                delay(2000)
                 _answers.emit(createJsonPayload(ServerResponse(msg2, currentStep)))
             }
-            Steps.THREE.value -> {
+            Step.THREE.value -> {
                 delay(2000)
-                val msg = Message("Do you agree to our terms of service?", isUserMessage = false)
+                val msg = Message("Do you agree to our terms of service?", messageType = MessageType.Bot)
                 _answers.emit(createJsonPayload(ServerResponse(msg, currentStep)))
             }
-            Steps.FOUR.value -> {
-                val msg1 =  Message("Thanks!", isUserMessage = false)
-                val msg2 =  Message("This is the last step!", isUserMessage = false)
-                val msg3 =  Message("What do you want to do now?", isUserMessage = false)
+            Step.FOUR.value -> {
+                delay(2000)
+                val msg1 =  Message("Thanks!", messageType = MessageType.Bot)
+                val msg2 =  Message("This is the last step!", messageType = MessageType.Bot)
+                val msg3 =  Message("What do you want to do now?", messageType = MessageType.Bot)
                 _answers.emit(createJsonPayload(ServerResponse(msg1, currentStep)))
                 delay(2000)
                 _answers.emit(createJsonPayload(ServerResponse(msg2, currentStep)))
                 delay(2000)
                 _answers.emit(createJsonPayload(ServerResponse(msg3, currentStep)))
             }
-            Steps.FIVE.value -> {
+            Step.FIVE.value -> {
                 delay(2000)
-                val msg1 =  Message("Bye Bye!!", isUserMessage = false)
+                val msg1 =  Message("Bye Bye!!", messageType = MessageType.Bot)
                 _answers.emit(createJsonPayload(ServerResponse(msg1, currentStep)))
             }
         }
-
     }
 
     private suspend fun firstStepMessages() {
         val msg1 = defaultMessage()
-        val msg2 = Message("What is your name?", isUserMessage = false)
+        val msg2 = Message("What is your name?", messageType = MessageType.Bot)
         _answers.emit(createJsonPayload(ServerResponse(msg1, currentStep)))
-        delay(1000)
+        delay(2000)
         _answers.emit(createJsonPayload(ServerResponse(msg2, currentStep)))
     }
 
     private fun setNextStep(message: Message?) {
         currentStep = when (currentStep) {
-            Steps.ONE -> Steps.TWO
-            Steps.TWO -> Steps.THREE
-            Steps.THREE -> {
+            Step.ONE -> Step.TWO
+            Step.TWO -> Step.THREE
+            Step.THREE -> {
                 if (message?.selection == true) {
-                    Steps.FOUR
+                    Step.FOUR
                 } else {
-                    Steps.FIVE
+                    Step.FIVE
                 }
             }
-            Steps.FOUR -> {
+            Step.FOUR -> {
                 if (message?.selection == true) {
-                    Steps.ONE
+                    Step.ONE
                 } else {
-                    Steps.FIVE
+                    Step.FIVE
                 }
             }
-            Steps.FIVE -> Steps.ONE
+            Step.FIVE -> Step.ONE
         }
     }
 
     private fun defaultMessage(): Message {
-        return Message("Hello, I am Ziv!", isUserMessage = false)
+        return Message("Hello, I am Ziv!", messageType = MessageType.Bot)
     }
 
 }
