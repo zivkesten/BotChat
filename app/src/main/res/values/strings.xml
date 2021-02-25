@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">ChatPOC</string>
+    <string name="enter_message">Enter Message</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="restart">RESTART</string>
+    <string name="exit">EXIT</string>
 </resources>

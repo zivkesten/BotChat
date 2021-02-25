@@ -34,7 +34,6 @@
                 android:background="@android:color/darker_gray"
                 android:id="@+id/yes_button"
                 android:layout_width="0dp"
-                android:text="Yes"
                 android:textColor="@color/black"
                 android:layout_weight="0.5"
                 android:layout_height="match_parent"/>
@@ -43,7 +42,6 @@
                 android:background="@android:color/darker_gray"
                 android:id="@+id/no_button"
                 android:layout_width="0dp"
-                android:text="No"
                 android:textColor="@color/black"
                 android:layout_weight="0.5"
                 android:layout_height="match_parent"/>
@@ -63,7 +61,7 @@
                 android:layout_centerVertical="true"
                 android:layout_toStartOf="@+id/button_send"
                 android:background="@android:color/transparent"
-                android:hint="Enter Message"
+                android:hint="@string/enter_message"
                 android:inputType="text"
                 android:maxLines="6"
                 tools:ignore="Autofill"
@@ -76,8 +74,7 @@
                 android:layout_height="48dp"
                 android:layout_alignParentEnd="true"
                 android:background="?attr/selectableItemBackground"
-                android:src="@drawable/ic_send"
-                android:textColor="@color/design_default_color_primary" />
+                android:src="@drawable/ic_send" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 

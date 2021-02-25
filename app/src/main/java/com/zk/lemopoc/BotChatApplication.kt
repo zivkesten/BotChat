@@ -3,7 +3,7 @@ package com.zk.lemopoc
 import android.app.Application
 import com.zk.lemopoc.backend.serverModule
 import com.zk.lemopoc.di.ViewModelsModule
-import com.zk.lemopoc.features.chat.repositoryModule
+import com.zk.lemopoc.features.chat.repository.repositoryModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin

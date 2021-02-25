@@ -1,18 +1,20 @@
-package com.zk.lemopoc.features.chat
+package com.zk.lemopoc.features.chat.viewModel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
-import com.zk.lemopoc.*
+import com.zk.lemopoc.R
+import com.zk.lemopoc.backend.Steps
 import com.zk.lemopoc.backend.models.ServerRequest
 import com.zk.lemopoc.backend.models.ServerResponse
-import com.zk.lemopoc.backend.Steps
-import com.zk.lemopoc.features.chat.ui.Event
-import com.zk.lemopoc.features.chat.ui.InputType
-import com.zk.lemopoc.features.chat.ui.UiState
+import com.zk.lemopoc.features.chat.models.Message
+import com.zk.lemopoc.features.chat.repository.Answer
+import com.zk.lemopoc.features.chat.repository.ChatRepository
+import com.zk.lemopoc.features.chat.ui.view.Event
+import com.zk.lemopoc.features.chat.ui.view.InputType
+import com.zk.lemopoc.features.chat.ui.view.UiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -27,9 +29,7 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
 
     init {
         viewModelScope.launch {
-            Log.i("Zivi", "collecting in VM")
             repository.answers.collect { answer ->
-                Log.e("Zivi", "answers: $answer")
                 chatList.add(answer.message)
                 _state.value = UiState(messagesData = chatList, inputTypeByStep(answer))
             }
@@ -40,8 +40,8 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
         return when (answer.currentStep) {
             Steps.ONE -> InputType.TEXT
             Steps.TWO -> InputType.NUMBER
-            Steps.THREE -> InputType.SELECTION("Yes", "No")
-            Steps.FOUR -> InputType.SELECTION("RESTART", "EXIT")
+            Steps.THREE -> InputType.SELECTION(R.string.yes, R.string.no)
+            Steps.FOUR -> InputType.SELECTION(R.string.restart, R.string.exit)
             Steps.FIVE -> InputType.NONE
         }
     }

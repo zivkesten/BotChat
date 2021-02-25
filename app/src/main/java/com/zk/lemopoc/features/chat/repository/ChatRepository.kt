@@ -1,11 +1,12 @@
-package com.zk.lemopoc.features.chat
+package com.zk.lemopoc.features.chat.repository
 
-import com.zk.lemopoc.Message
+import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.backend.Server
-import com.zk.lemopoc.backend.ServerImpl
 import com.zk.lemopoc.backend.models.ServerRequest
 import com.zk.lemopoc.backend.models.ServerResponse
 import com.zk.lemopoc.backend.Steps
+import com.zk.lemopoc.features.chat.viewModel.createJsonPayload
+import com.zk.lemopoc.features.chat.viewModel.parseServerResponse
 import kotlinx.coroutines.flow.*
 import org.koin.dsl.module
 

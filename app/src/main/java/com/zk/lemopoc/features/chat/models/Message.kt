@@ -1,4 +1,4 @@
-package com.zk.lemopoc
+package com.zk.lemopoc.features.chat.models
 
 open class Message(
     val textInput: String? = null,

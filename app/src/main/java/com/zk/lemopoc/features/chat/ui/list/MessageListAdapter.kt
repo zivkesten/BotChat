@@ -1,9 +1,9 @@
-package com.zk.lemopoc.features.chat.ui
+package com.zk.lemopoc.features.chat.ui.list
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
-import com.zk.lemopoc.Message
+import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.databinding.ChatBubbleBotBinding
 import com.zk.lemopoc.databinding.ChatBubbleUserBinding
 

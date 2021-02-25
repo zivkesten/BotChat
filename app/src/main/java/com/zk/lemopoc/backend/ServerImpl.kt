@@ -1,10 +1,9 @@
 package com.zk.lemopoc.backend
 
-import android.util.Log
-import com.zk.lemopoc.Message
 import com.zk.lemopoc.backend.models.ServerResponse
-import com.zk.lemopoc.features.chat.createJsonPayload
-import com.zk.lemopoc.features.chat.parseServerRequest
+import com.zk.lemopoc.features.chat.models.Message
+import com.zk.lemopoc.features.chat.viewModel.createJsonPayload
+import com.zk.lemopoc.features.chat.viewModel.parseServerRequest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -40,13 +39,11 @@ class ServerImpl: Server {
     override val answers = _answers.asSharedFlow()
 
     override suspend fun startConversation() {
-        Log.w("Zivi", "startConversation")
         firstStepMessages()
     }
 
     override suspend fun message(message: JsonPayload) {
         val request = parseServerRequest(message)
-        Log.w("Zivi", "current step : $currentStep")
         setNextStep(request.message)
         botMessageByStep(currentStep, prevMsg = request.message)
     }
@@ -62,7 +59,6 @@ class ServerImpl: Server {
                 val msg2 =  Message("What is your phone number?", isUserMessage = false)
                 _answers.emit(createJsonPayload(ServerResponse(msg1, currentStep)))
                 delay(1000)
-                Log.d("Zivi", "server step: $currentStep")
                 _answers.emit(createJsonPayload(ServerResponse(msg2, currentStep)))
             }
             Steps.THREE.value -> {
@@ -91,7 +87,7 @@ class ServerImpl: Server {
 
     private suspend fun firstStepMessages() {
         val msg1 = defaultMessage()
-        val msg2 = Message("write name", isUserMessage = false)
+        val msg2 = Message("What is your name?", isUserMessage = false)
         _answers.emit(createJsonPayload(ServerResponse(msg1, currentStep)))
         delay(1000)
         _answers.emit(createJsonPayload(ServerResponse(msg2, currentStep)))

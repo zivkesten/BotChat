@@ -1,6 +1,6 @@
-package com.zk.lemopoc.features.chat.ui
+package com.zk.lemopoc.features.chat.ui.list
 
-import com.zk.lemopoc.Message
+import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.databinding.ChatBubbleBotBinding
 
 class BotMessageViewHolder(

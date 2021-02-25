@@ -1,6 +1,6 @@
 package com.zk.lemopoc.di
 
-import com.zk.lemopoc.features.chat.ChatViewModel
+import com.zk.lemopoc.features.chat.viewModel.ChatViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
