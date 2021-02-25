@@ -87,14 +87,6 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
     }
 }
 
-fun createJsonPayload(message: Any): String {
-    return Gson().toJson(message)
-}
-
 fun parseServerRequest(jsonPayload: String): ServerRequest {
     return Gson().fromJson(jsonPayload, ServerRequest::class.java)
-}
-
-fun parseServerResponse(jsonPayload: String): ServerResponse {
-    return Gson().fromJson(jsonPayload, ServerResponse::class.java)
 }

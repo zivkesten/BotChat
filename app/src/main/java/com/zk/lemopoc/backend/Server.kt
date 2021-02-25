@@ -1,9 +1,9 @@
 package com.zk.lemopoc.backend
 
 import com.zk.lemopoc.backend.models.ServerResponse
+import com.zk.lemopoc.createJsonPayload
 import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.features.chat.models.MessageType
-import com.zk.lemopoc.features.chat.viewModel.createJsonPayload
 import com.zk.lemopoc.features.chat.viewModel.parseServerRequest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
