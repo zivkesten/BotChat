@@ -3,10 +3,10 @@ package com.zk.lemopoc.features.chat.ui.list
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
-import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.databinding.ChatBubbleBotBinding
 import com.zk.lemopoc.databinding.ChatBubbleUserBinding
 import com.zk.lemopoc.databinding.SeparatorBubbleBinding
+import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.features.chat.models.MessageType
 
 
@@ -17,31 +17,37 @@ enum class Types(val value: Int) {
 }
 
 class MessageListAdapter :
-   ListAdapter<Message, MultiViewViewHolder>(ItemDiffCallback()) {
+    ListAdapter<Message, MultiViewViewHolder>(ItemDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MultiViewViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): MultiViewViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        when (viewType) {
+        return when (viewType) {
             Types.USER.value -> {
-                val binding = ChatBubbleUserBinding.inflate(inflater, parent, false)
-                return UserMessageViewHolder(binding)
+                val binding = ChatBubbleUserBinding
+                    .inflate(inflater, parent, false)
+                UserMessageViewHolder(binding)
             }
             Types.BOT.value -> {
-                val binding = ChatBubbleBotBinding.inflate(inflater, parent, false)
-                return BotMessageViewHolder(binding)
+                val binding = ChatBubbleBotBinding
+                    .inflate(inflater, parent, false)
+                BotMessageViewHolder(binding)
             }
-            Types.SEPARATOR.value -> {
-                val binding = SeparatorBubbleBinding.inflate(inflater, parent, false)
-                return SeparatorViewHolder(binding)
+            // Separator
+            else -> {
+                val binding = SeparatorBubbleBinding
+                    .inflate(inflater, parent, false)
+                SeparatorViewHolder(binding)
             }
         }
-
-        // TODO: 25/02/2021 Get rid of this
-        val binding = ChatBubbleBotBinding.inflate(inflater, parent, false)
-        return BotMessageViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: MultiViewViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: MultiViewViewHolder,
+        position: Int
+    ) {
         holder.onBindVewHolder(position, getItem(position))
     }
 

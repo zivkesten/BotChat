@@ -30,12 +30,23 @@ class ChatRepositoryImpl(private val server: Server): ChatRepository {
         .map { json -> mapJsonToResponse(json) }
         .map { response -> mapResponseToAnswer(response) }
 
-    private fun mapResponseToAnswer(response: ServerResponse): Answer {
-        return Answer(response.message, response.currentSep, response.restart)
+    private fun mapResponseToAnswer(
+        response: ServerResponse
+    ): Answer {
+        return Answer(
+            response.message,
+            response.currentSep,
+            response.restart
+        )
     }
 
-    private fun mapJsonToResponse(jsonPayload: String): ServerResponse {
-        return Gson().fromJson(jsonPayload, ServerResponse::class.java)
+    private fun mapJsonToResponse(
+        jsonPayload: String
+    ): ServerResponse {
+        return Gson().fromJson(
+            jsonPayload,
+            ServerResponse::class.java
+        )
     }
 
     override suspend fun startConversation() {
