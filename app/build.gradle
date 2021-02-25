@@ -57,5 +57,8 @@ dependencies {
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
     implementation "org.koin:koin-core:$koin_version"
 
+    def lottie_version = '3.6.1'
+    implementation "com.airbnb.android:lottie:$lottie_version"
+
     implementation "com.ironsource.aura.oneadapter:oneadapter:2.0.2"
 }

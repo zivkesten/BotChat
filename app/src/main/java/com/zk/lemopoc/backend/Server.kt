@@ -1,5 +1,6 @@
 package com.zk.lemopoc.backend
 
+import com.zk.lemopoc.backend.models.ResponseContent
 import com.zk.lemopoc.backend.models.ServerResponse
 import com.zk.lemopoc.createJsonPayload
 import com.zk.lemopoc.features.chat.models.Message
@@ -52,49 +53,76 @@ class ServerImpl: Server {
     private suspend fun botMessageByStep(step: Step, prevMsg: Message) {
         when (step.value) {
             Step.ONE.value -> {
-                val msg1 =  Message(messageType = MessageType.Bot)
-                _answers.emit(createJsonPayload(ServerResponse(msg1, currentStep, true)))
+                delay(2000)
+                _answers.emit(createJsonPayload(ServerResponse(ResponseContent(), currentStep)))
                 delay(2000)
                 firstStepMessages()
             }
             Step.TWO.value -> {
                 delay(2000)
-                val msg1 =  Message("Nice to meet you ${prevMsg.textInput} :) ", messageType = MessageType.Bot)
-                val msg2 =  Message("What is your phone number?", messageType = MessageType.Bot)
-                _answers.emit(createJsonPayload(ServerResponse(msg1, currentStep)))
+                replay(Message(messageType = MessageType.BotTyping))
                 delay(2000)
-                _answers.emit(createJsonPayload(ServerResponse(msg2, currentStep)))
+                replay(Message(
+                    "Nice to meet you ${prevMsg.textInput} :) ",
+                    messageType = MessageType.Bot)
+                )
+                delay(2000)
+                replay(Message(
+                    "What is your phone number?",
+                    messageType = MessageType.Bot)
+                )
             }
             Step.THREE.value -> {
                 delay(2000)
-                val msg = Message("Do you agree to our terms of service?", messageType = MessageType.Bot)
-                _answers.emit(createJsonPayload(ServerResponse(msg, currentStep)))
+                replay(Message(messageType = MessageType.BotTyping))
+                delay(2000)
+                replay(Message(
+                    "Do you agree to our terms of service?",
+                    messageType = MessageType.Bot)
+                )
             }
             Step.FOUR.value -> {
                 delay(2000)
-                val msg1 =  Message("Thanks!", messageType = MessageType.Bot)
-                val msg2 =  Message("This is the last step!", messageType = MessageType.Bot)
-                val msg3 =  Message("What do you want to do now?", messageType = MessageType.Bot)
-                _answers.emit(createJsonPayload(ServerResponse(msg1, currentStep)))
+                replay(Message("Thanks!", messageType = MessageType.Bot))
                 delay(2000)
-                _answers.emit(createJsonPayload(ServerResponse(msg2, currentStep)))
+                replay(Message(messageType = MessageType.BotTyping))
                 delay(2000)
-                _answers.emit(createJsonPayload(ServerResponse(msg3, currentStep)))
+                replay(Message("This is the last step!",
+                    messageType = MessageType.Bot)
+                )
+                replay(Message(messageType = MessageType.BotTyping))
+                delay(2000)
+                delay(2000)
+                replay(Message("What do you want to do now?",
+                    messageType = MessageType.Bot)
+                )
             }
             Step.FIVE.value -> {
                 delay(2000)
-                val msg1 =  Message("Bye Bye!!", messageType = MessageType.Bot)
-                _answers.emit(createJsonPayload(ServerResponse(msg1, currentStep)))
+                replay(Message(
+                    "Bye Bye!!", messageType = MessageType.Bot)
+                )
             }
         }
     }
 
+    private suspend fun replay(msg1: Message) {
+        _answers.emit(
+            createJsonPayload(
+                ServerResponse(
+                    ResponseContent(msg1),
+                    currentStep
+                )
+            )
+        )
+    }
+
     private suspend fun firstStepMessages() {
-        val msg1 = defaultMessage()
-        val msg2 = Message("What is your name?", messageType = MessageType.Bot)
-        _answers.emit(createJsonPayload(ServerResponse(msg1, currentStep)))
+        replay(defaultMessage())
         delay(2000)
-        _answers.emit(createJsonPayload(ServerResponse(msg2, currentStep)))
+        replay(Message(messageType = MessageType.BotTyping))
+        delay(2000)
+        replay(Message("What is your name?", messageType = MessageType.Bot))
     }
 
     private fun setNextStep(message: Message?) {

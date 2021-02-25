@@ -4,16 +4,18 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.zk.lemopoc.databinding.ChatBubbleBotBinding
+import com.zk.lemopoc.databinding.ChatBubbleBotTypingBinding
 import com.zk.lemopoc.databinding.ChatBubbleUserBinding
 import com.zk.lemopoc.databinding.SeparatorBubbleBinding
 import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.features.chat.models.MessageType
 
 
-enum class Types(val value: Int) {
+enum class MessageTypes(val value: Int) {
     USER(1),
     BOT(2),
-    SEPARATOR(3);
+    BOT_TYPING(3),
+    SEPARATOR(4);
 }
 
 class MessageListAdapter :
@@ -25,15 +27,19 @@ class MessageListAdapter :
     ): MultiViewViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
-            Types.USER.value -> {
-                val binding = ChatBubbleUserBinding
-                    .inflate(inflater, parent, false)
+            MessageTypes.USER.value -> {
+                val binding = ChatBubbleUserBinding.inflate(inflater, parent, false)
                 UserMessageViewHolder(binding)
             }
-            Types.BOT.value -> {
+            MessageTypes.BOT.value -> {
                 val binding = ChatBubbleBotBinding
                     .inflate(inflater, parent, false)
                 BotMessageViewHolder(binding)
+            }
+            MessageType.BotTyping.value -> {
+                val binding = ChatBubbleBotTypingBinding
+                    .inflate(inflater, parent, false)
+                BotTypingMessageViewHolder(binding)
             }
             // Separator
             else -> {
@@ -54,9 +60,10 @@ class MessageListAdapter :
     override fun getItemViewType(position: Int): Int {
         val message = getItem(position)
         return when (message.messageType) {
-            MessageType.User -> Types.USER.value
-            MessageType.Bot -> Types.BOT.value
-            MessageType.Separator -> Types.SEPARATOR.value
+            MessageType.User -> MessageTypes.USER.value
+            MessageType.Bot -> MessageTypes.BOT.value
+            MessageType.Separator -> MessageTypes.SEPARATOR.value
+            MessageType.BotTyping -> MessageTypes.BOT_TYPING.value
         }
     }
 }

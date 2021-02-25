@@ -6,6 +6,7 @@ import com.zk.lemopoc.backend.Server
 import com.zk.lemopoc.backend.models.ServerRequest
 import com.zk.lemopoc.backend.models.ServerResponse
 import com.zk.lemopoc.backend.Step
+import com.zk.lemopoc.backend.models.ResponseContent
 import com.zk.lemopoc.createJsonPayload
 import kotlinx.coroutines.flow.*
 import org.koin.dsl.module
@@ -19,10 +20,16 @@ interface ChatRepository {
     suspend fun startConversation()
     suspend fun message(message: Message)
 }
+
+sealed class Content {
+    data class MessageContent(val message: Message): Content()
+    object Typing: Content()
+    object Restart: Content()
+
+}
 data class Answer(
-    val message: Message,
+    val content: Content,
     val currentStep: Step,
-    val restart: Boolean = false
 )
 
 class ChatRepositoryImpl(private val server: Server): ChatRepository {
@@ -33,11 +40,20 @@ class ChatRepositoryImpl(private val server: Server): ChatRepository {
     private fun mapResponseToAnswer(
         response: ServerResponse
     ): Answer {
+        val content = mapResponseContentToAnswerContent(response)
         return Answer(
-            response.message,
+            content,
             response.currentSep,
-            response.restart
         )
+    }
+
+    private fun mapResponseContentToAnswerContent(
+        response: ServerResponse
+    ): Content {
+        response.content.messageContent?.let {
+            return Content.MessageContent(it)
+        }
+        return Content.Restart
     }
 
     private fun mapJsonToResponse(
