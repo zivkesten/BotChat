@@ -30,6 +30,7 @@ sealed class Content {
 data class Answer(
     val content: Content,
     val currentStep: Step,
+    val shouldReply: Boolean = false
 )
 
 class ChatRepositoryImpl(private val server: Server): ChatRepository {
@@ -44,6 +45,7 @@ class ChatRepositoryImpl(private val server: Server): ChatRepository {
         return Answer(
             content,
             response.currentSep,
+            response.shouldReply
         )
     }
 

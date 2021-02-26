@@ -29,25 +29,29 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
 
     init {
         viewModelScope.launch {
+
             repository.answers.collect { answer ->
                 when (answer.content) {
                     is Content.MessageContent -> {
                         postMessage(
                             answer.content.message,
-                            answer.currentStep
+                            answer.currentStep,
+                            answer.shouldReply
                         )
                     }
                     is Content.Restart -> {
                         postMessage(Message(
                             messageType = MessageType.Separator),
-                            answer.currentStep
+                            answer.currentStep,
+                            answer.shouldReply
                         )
 
                     }
                     is Content.Typing -> {
                         postMessage(Message(
                             messageType = MessageType.BotTyping),
-                            answer.currentStep
+                            answer.currentStep,
+                            answer.shouldReply
                         )
                     }
                 }
@@ -55,15 +59,17 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
         }
     }
 
-    private fun postMessage(message: Message, step: Step) {
+    private fun postMessage(message: Message, step: Step, enableReply: Boolean) {
         val lastMessage = messageList.lastOrNull()
-        if (lastMessage?.messageType == MessageType.BotTyping) {
+        if (lastMessage?.messageType == MessageType.BotTyping
+            || lastMessage?.messageType == MessageType.UserTyping) {
             messageList.remove(lastMessage)
         }
         messageList.add(message)
         _state.value = UiState(
             messagesData = messageList,
-            inputTypeByStep(step)
+            inputTypeByStep(step),
+            enableReply
         )
     }
 
@@ -80,17 +86,38 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
     fun onEvent(event: Event) {
         when (event) {
             is Event.MessageSent -> {
-               sendToServer(event)
-               event.message.textInput?.let {
-                   messageList.add(event.message)
-                   _state.value = _state.value?.copy(
-                       messagesData = messageList
-                   )
-               }
+                removeTypingMessageIfNeeded()
+                sendToServer(event)
+                event.message.textInput?.let {
+                    messageList.add(event.message)
+                    postState()
+                }
             }
             is Event.StartConversation -> startConversation()
+            is Event.UserTyping -> {
+                if (messageList.lastOrNull()?.messageType != MessageType.UserTyping) {
+                    messageList.add(Message(messageType = MessageType.UserTyping))
+                    postState()
+                }
+
+            }
         }
     }
+
+    private fun postState() {
+        _state.value = _state.value?.copy(
+            messagesData = messageList
+        )
+    }
+
+    private fun removeTypingMessageIfNeeded() {
+        val lastMessageType = messageList.lastOrNull()?.messageType
+        if (lastMessageType == MessageType.UserTyping) {
+            messageList.remove(messageList.last())
+        }
+        postState()
+    }
+
 
     private fun startConversation() {
         viewModelScope.launch(Dispatchers.IO) {

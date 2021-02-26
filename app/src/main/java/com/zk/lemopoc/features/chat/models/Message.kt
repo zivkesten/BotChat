@@ -2,9 +2,10 @@ package com.zk.lemopoc.features.chat.models
 
 enum class MessageType(val value: Int) {
     User(1),
-    Bot(2),
-    BotTyping(3),
-    Separator(4)
+    UserTyping(2),
+    Bot(3),
+    BotTyping(4),
+    Separator(5)
 }
 
 data class Message(

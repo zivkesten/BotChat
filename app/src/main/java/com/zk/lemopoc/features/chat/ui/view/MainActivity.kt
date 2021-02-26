@@ -19,6 +19,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 sealed class Event {
     object StartConversation: Event()
+    object UserTyping: Event()
     data class MessageSent(val message: Message): Event()
 }
 
@@ -32,6 +33,8 @@ sealed class InputType {
 data class UiState(
     val messagesData: List<Message>? = null,
     val inputType: InputType,
+    val enableReply: Boolean = false
+
 )
 
 class MainActivity : AppCompatActivity() {
@@ -42,13 +45,15 @@ class MainActivity : AppCompatActivity() {
 
     private val chatAdapter: MessageListAdapter = MessageListAdapter()
 
+    // TODO: 26/02/2021 Could be converted to callbackFlow for more elegant design
     // These text watchers are meant for validating the input in different steps
     private val textInputTextWatcher = object: TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         override fun afterTextChanged(text: Editable?) {
-            text?.let {
-                binding.buttonSend.isEnabled = it.isLetters()
+            if(!text.isNullOrEmpty()) {
+                binding.buttonSend.isEnabled = text.isLetters()
+                viewModel.onEvent(Event.UserTyping)
             }
         }
     }
@@ -97,22 +102,25 @@ class MainActivity : AppCompatActivity() {
     private fun setupSelectionButtons() {
         binding.yesButton.setOnClickListener {
             sendSelectionMessage(binding.yesButton.text.toString(), true)
+            binding.yesButton.isEnabled = false
         }
+
         binding.noButton.setOnClickListener {
             sendSelectionMessage(binding.noButton.text.toString(), false)
+            binding.noButton.isEnabled = false
         }
     }
 
     private fun sendSelectionMessage(message: String, selection: Boolean) {
-        viewModel.onEvent(
-            Event.MessageSent(
-                Message(
-                    message,
-                    selection = selection,
-                    messageType = MessageType.User
-                )
-            )
+        sendMessageEvent(Message(
+            message,
+            selection = selection,
+            messageType = MessageType.User)
         )
+    }
+
+    private fun sendMessageEvent(message: Message) {
+        viewModel.onEvent(Event.MessageSent(message))
     }
 
     private fun setupSendButton() {
@@ -122,13 +130,12 @@ class MainActivity : AppCompatActivity() {
         binding.buttonSend.setOnClickListener {
             val userMessage = binding.inputMessage.text.toString()
             val message = Message(userMessage, messageType = MessageType.User)
-            viewModel.onEvent(Event.MessageSent(message))
+            sendMessageEvent(message)
             binding.inputMessage.text.clear()
         }
     }
 
     private fun render(state: UiState?) {
-
         state?.let { uiState ->
             uiState.messagesData?.let { messages ->
                 chatAdapter.submitList(messages.toMutableList())
@@ -139,6 +146,14 @@ class MainActivity : AppCompatActivity() {
 
             // Toggle input type text|number|selection
             renderInputType(uiState)
+
+            // Enable option to reply when possible
+            with(uiState.enableReply) {
+                binding.inputMessage.isEnabled = this
+                binding.buttonSend.isEnabled = this
+                binding.yesButton.isEnabled = this
+                binding.noButton.isEnabled = this
+            }
         }
     }
 
@@ -167,17 +182,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun toggleInputLayout(inputType: InputType) {
         when (inputType) {
-            is InputType.TEXT, InputType.NUMBER -> {
+            is InputType.TEXT, InputType.NUMBER, InputType.NONE -> {
                 binding.inputMessageLayout.visibility = View.VISIBLE
                 binding.selectionLayout.visibility = View.GONE
             }
             is InputType.SELECTION -> {
                 binding.inputMessageLayout.visibility = View.GONE
                 binding.selectionLayout.visibility = View.VISIBLE
-            }
-            is InputType.NONE -> {
-                binding.inputMessageLayout.visibility = View.GONE
-                binding.selectionLayout.visibility = View.GONE
             }
         }
     }

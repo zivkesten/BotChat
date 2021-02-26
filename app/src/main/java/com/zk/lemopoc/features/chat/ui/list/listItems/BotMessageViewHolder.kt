@@ -1,4 +1,4 @@
-package com.zk.lemopoc.features.chat.ui.list
+package com.zk.lemopoc.features.chat.ui.list.listItems
 
 import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.databinding.ChatBubbleBotBinding

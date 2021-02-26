@@ -1,4 +1,4 @@
-package com.zk.lemopoc.features.chat.ui.list
+package com.zk.lemopoc.features.chat.ui.list.listItems
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView

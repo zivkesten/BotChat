@@ -67,9 +67,11 @@ class ServerImpl: Server {
                     messageType = MessageType.Bot)
                 )
                 delay(2000)
-                replay(Message(
-                    "What is your phone number?",
-                    messageType = MessageType.Bot)
+                replay(
+                    Message(
+                        "What is your phone number?",
+                        messageType = MessageType.Bot),
+                    shouldReply = true
                 )
             }
             Step.THREE.value -> {
@@ -78,51 +80,65 @@ class ServerImpl: Server {
                 delay(2000)
                 replay(Message(
                     "Do you agree to our terms of service?",
-                    messageType = MessageType.Bot)
+                    messageType = MessageType.Bot),
+                    shouldReply = true
                 )
             }
             Step.FOUR.value -> {
                 delay(2000)
-                replay(Message("Thanks!", messageType = MessageType.Bot))
+                replay(
+                    Message("Thanks!", messageType = MessageType.Bot))
                 delay(2000)
-                replay(Message(messageType = MessageType.BotTyping))
+                replay(
+                    Message(messageType = MessageType.BotTyping))
                 delay(2000)
-                replay(Message("This is the last step!",
+                replay(
+                    Message("This is the last step!",
                     messageType = MessageType.Bot)
                 )
-                replay(Message(messageType = MessageType.BotTyping))
+                replay(
+                    Message(messageType = MessageType.BotTyping))
                 delay(2000)
                 delay(2000)
-                replay(Message("What do you want to do now?",
-                    messageType = MessageType.Bot)
+                replay(
+                    Message("What do you want to do now?",
+                    messageType = MessageType.Bot),
+                    shouldReply = true
                 )
             }
             Step.FIVE.value -> {
                 delay(2000)
-                replay(Message(
+                replay(
+                    Message(
                     "Bye Bye!!", messageType = MessageType.Bot)
                 )
             }
         }
     }
 
-    private suspend fun replay(msg1: Message) {
+    private suspend fun replay(msg1: Message, shouldReply: Boolean = false) {
         _answers.emit(
             createJsonPayload(
                 ServerResponse(
                     ResponseContent(msg1),
-                    currentStep
+                    currentStep,
+                    shouldReply
                 )
             )
         )
     }
 
     private suspend fun firstStepMessages() {
+        replay(Message(messageType = MessageType.BotTyping))
+        delay(2000)
         replay(defaultMessage())
         delay(2000)
         replay(Message(messageType = MessageType.BotTyping))
         delay(2000)
-        replay(Message("What is your name?", messageType = MessageType.Bot))
+        replay(Message(
+            "What is your name?",
+            messageType = MessageType.Bot
+        ), shouldReply = true)
     }
 
     private fun setNextStep(message: Message?) {
@@ -150,5 +166,4 @@ class ServerImpl: Server {
     private fun defaultMessage(): Message {
         return Message("Hello, I am Ziv!", messageType = MessageType.Bot)
     }
-
 }

@@ -3,19 +3,18 @@ package com.zk.lemopoc.features.chat.ui.list
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
-import com.zk.lemopoc.databinding.ChatBubbleBotBinding
-import com.zk.lemopoc.databinding.ChatBubbleBotTypingBinding
-import com.zk.lemopoc.databinding.ChatBubbleUserBinding
-import com.zk.lemopoc.databinding.SeparatorBubbleBinding
+import com.zk.lemopoc.databinding.*
 import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.features.chat.models.MessageType
+import com.zk.lemopoc.features.chat.ui.list.listItems.*
 
 
 enum class MessageTypes(val value: Int) {
     USER(1),
-    BOT(2),
-    BOT_TYPING(3),
-    SEPARATOR(4);
+    USER_TYPING(2),
+    BOT(3),
+    BOT_TYPING(4),
+    SEPARATOR(5);
 }
 
 class MessageListAdapter :
@@ -41,6 +40,11 @@ class MessageListAdapter :
                     .inflate(inflater, parent, false)
                 BotTypingMessageViewHolder(binding)
             }
+            MessageType.UserTyping.value -> {
+                val binding = ChatBubbleUserTypingBinding
+                    .inflate(inflater, parent, false)
+                UserTypingMessageViewHolder(binding)
+            }
             // Separator
             else -> {
                 val binding = SeparatorBubbleBinding
@@ -61,6 +65,7 @@ class MessageListAdapter :
         val message = getItem(position)
         return when (message.messageType) {
             MessageType.User -> MessageTypes.USER.value
+            MessageType.UserTyping -> MessageTypes.USER_TYPING.value
             MessageType.Bot -> MessageTypes.BOT.value
             MessageType.Separator -> MessageTypes.SEPARATOR.value
             MessageType.BotTyping -> MessageTypes.BOT_TYPING.value
