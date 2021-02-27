@@ -4,10 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
 import com.zk.lemopoc.R
 import com.zk.lemopoc.backend.Step
-import com.zk.lemopoc.backend.models.ServerRequest
 import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.features.chat.models.MessageType
 import com.zk.lemopoc.features.chat.repository.ChatRepository
@@ -18,6 +16,7 @@ import com.zk.lemopoc.features.chat.ui.view.UiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.util.*
 
 data class Answer(
     val content: Content,
@@ -27,7 +26,8 @@ data class Answer(
 
 class ChatViewModel(private val repository: ChatRepository): ViewModel() {
 
-    private val messageList = mutableListOf<Message>()
+    // Using a stack
+    private val messageList = Stack<Message>()
 
     private val _state = MutableLiveData<UiState>()
 
@@ -66,12 +66,12 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
     }
 
     private fun postMessage(message: Message, step: Step, enableReply: Boolean) {
-        val lastMessage = messageList.lastOrNull()
-        if (lastMessage?.messageType == MessageType.BotTyping
-            || lastMessage?.messageType == MessageType.UserTyping) {
-            messageList.remove(lastMessage)
+
+        if (lastMessage()?.messageType == MessageType.BotTyping
+            || lastMessage()?.messageType == MessageType.UserTyping) {
+            messageList.pop()
         }
-        messageList.add(message)
+        messageList.push(message)
         _state.value = UiState(
             messagesData = messageList,
             inputTypeByStep(step),
@@ -95,7 +95,7 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
                 removeTypingMessageIfNeeded()
                 sendToServer(event)
                 event.message.textInput?.let {
-                    messageList.add(event.message)
+                    messageList.push(event.message)
                     postState()
                 }
             }
@@ -105,11 +105,20 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
                     removeTypingMessageIfNeeded()
                     return
                 }
-                if (messageList.lastOrNull()?.messageType != MessageType.UserTyping) {
-                    messageList.add(Message(messageType = MessageType.UserTyping))
+                if (lastMessage()?.messageType != MessageType.UserTyping) {
+                    messageList.push(Message(messageType = MessageType.UserTyping))
                     postState()
                 }
             }
+        }
+    }
+
+    private fun lastMessage(): Message? {
+        // peek at the last message to see if its a typing message, if stack is empty return null
+        return try {
+            messageList.peek()
+        } catch (e: EmptyStackException) {
+            null
         }
     }
 
@@ -120,9 +129,9 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
     }
 
     private fun removeTypingMessageIfNeeded() {
-        val lastMessageType = messageList.lastOrNull()?.messageType
+        val lastMessageType = lastMessage()?.messageType
         if (lastMessageType == MessageType.UserTyping) {
-            messageList.remove(messageList.last())
+            messageList.pop()
         }
         postState()
     }
