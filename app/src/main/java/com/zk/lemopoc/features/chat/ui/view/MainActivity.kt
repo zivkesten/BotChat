@@ -1,12 +1,11 @@
 package com.zk.lemopoc.features.chat.ui.view
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.isDigitsOnly
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zk.lemopoc.databinding.ActivityMainBinding
 import com.zk.lemopoc.features.chat.models.Message
@@ -48,23 +47,6 @@ class MainActivity : AppCompatActivity() {
 
     private val chatAdapter: MessageListAdapter = MessageListAdapter()
 
-    // TODO: 26/02/2021 Could be converted to callbackFlow for more elegant design
-    // This text watcher is meant for validating the input in different steps
-    private val textInputTextWatcher = object: TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        override fun afterTextChanged(text: Editable?) {
-            viewModel.onEvent(Event.UserTyping(!text.isNullOrEmpty()))
-            text?.let {
-                when (viewModel.state.value?.inputType) {
-                    is InputType.TEXT -> binding.buttonSend.isEnabled = it.isLetters()
-                    is InputType.NUMBER -> binding.buttonSend.isEnabled = it.isDigitsOnly()
-                    else -> Log.d(TAG, "No action required on selection input state")
-                }
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -91,7 +73,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupInput() {
-        binding.inputMessage.addTextChangedListener(textInputTextWatcher)
+        binding.inputMessage.addTextChangedListener { text ->
+                viewModel.onEvent(Event.UserTyping(!text.isNullOrEmpty()))
+                text?.let {
+                    when (viewModel.state.value?.inputType) {
+                        is InputType.TEXT -> binding.buttonSend.isEnabled = it.isLetters()
+                        is InputType.NUMBER -> binding.buttonSend.isEnabled = it.isDigitsOnly()
+                        else -> Log.d(TAG, "No action required on selection input state")
+                    }
+                }
+        }
     }
 
     private fun setupSelectionButtons() {
