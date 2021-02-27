@@ -2,11 +2,11 @@ package com.zk.lemopoc.features.chat.repository
 
 import com.google.gson.Gson
 import com.zk.lemopoc.backend.Server
-import com.zk.lemopoc.backend.Step
 import com.zk.lemopoc.backend.models.ServerRequest
 import com.zk.lemopoc.backend.models.ServerResponse
 import com.zk.lemopoc.createJsonPayload
 import com.zk.lemopoc.features.chat.models.Message
+import com.zk.lemopoc.features.chat.viewModel.Answer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.dsl.module
@@ -25,13 +25,7 @@ sealed class Content {
     data class MessageContent(val message: Message): Content()
     object Typing: Content()
     object Restart: Content()
-
 }
-data class Answer(
-    val content: Content,
-    val currentStep: Step,
-    val shouldReply: Boolean = false
-)
 
 class ChatRepositoryImpl(private val server: Server): ChatRepository {
     override val answers: Flow<Answer> = server.answers

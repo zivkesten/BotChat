@@ -1,25 +1,25 @@
 package com.zk.lemopoc.features.chat.ui.view
 
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.isDigitsOnly
-import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zk.lemopoc.databinding.ActivityMainBinding
 import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.features.chat.models.MessageType
 import com.zk.lemopoc.features.chat.ui.list.MessageListAdapter
 import com.zk.lemopoc.features.chat.viewModel.ChatViewModel
+import com.zk.lemopoc.hideKeyboard
+import com.zk.lemopoc.isLetters
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 sealed class Event {
     object StartConversation: Event()
-    object UserTyping: Event()
+    data class UserTyping(val typing: Boolean): Event()
     data class MessageSent(val message: Message): Event()
 }
 
@@ -34,10 +34,13 @@ data class UiState(
     val messagesData: List<Message>? = null,
     val inputType: InputType,
     val enableReply: Boolean = false
-
 )
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        val TAG: String = MainActivity::class.java.simpleName
+    }
 
     private lateinit var binding: ActivityMainBinding
 
@@ -46,24 +49,18 @@ class MainActivity : AppCompatActivity() {
     private val chatAdapter: MessageListAdapter = MessageListAdapter()
 
     // TODO: 26/02/2021 Could be converted to callbackFlow for more elegant design
-    // These text watchers are meant for validating the input in different steps
+    // This text watcher is meant for validating the input in different steps
     private val textInputTextWatcher = object: TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         override fun afterTextChanged(text: Editable?) {
-            if(!text.isNullOrEmpty()) {
-                binding.buttonSend.isEnabled = text.isLetters()
-                viewModel.onEvent(Event.UserTyping)
-            }
-        }
-    }
-
-    private val numbersInputTextWatcher = object: TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        override fun afterTextChanged(text: Editable?) {
+            viewModel.onEvent(Event.UserTyping(!text.isNullOrEmpty()))
             text?.let {
-                binding.buttonSend.isEnabled = it.isDigitsOnly()
+                when (viewModel.state.value?.inputType) {
+                    is InputType.TEXT -> binding.buttonSend.isEnabled = it.isLetters()
+                    is InputType.NUMBER -> binding.buttonSend.isEnabled = it.isDigitsOnly()
+                    else -> Log.d(TAG, "No action required on selection input state")
+                }
             }
         }
     }
@@ -94,9 +91,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupInput() {
-        binding.inputMessage.addTextChangedListener {
-            binding.buttonSend.isEnabled = !it.isNullOrEmpty()
-        }
+        binding.inputMessage.addTextChangedListener(textInputTextWatcher)
     }
 
     private fun setupSelectionButtons() {
@@ -161,15 +156,10 @@ class MainActivity : AppCompatActivity() {
         toggleInputLayout(uiState.inputType)
         when (uiState.inputType) {
             is InputType.TEXT -> {
-                binding.inputMessage.removeTextChangedListener(numbersInputTextWatcher)
                 binding.inputMessage.inputType = android.text.InputType.TYPE_CLASS_TEXT
-                binding.inputMessage.addTextChangedListener(textInputTextWatcher)
             }
             is InputType.NUMBER -> {
-                binding.inputMessage.removeTextChangedListener(textInputTextWatcher)
                 binding.inputMessage.inputType = android.text.InputType.TYPE_CLASS_NUMBER
-                binding.inputMessage.addTextChangedListener(numbersInputTextWatcher)
-
             }
             is InputType.SELECTION -> {
                 binding.yesButton.text = getString(uiState.inputType.trueBtnTextRes)
@@ -193,14 +183,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
-
-fun View.hideKeyboard() {
-    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.hideSoftInputFromWindow(windowToken, 0)
-}
-
-fun Editable.isLetters(): Boolean {
-    return this.toString().filter { it in 'a'..'z' }.length == this.toString().length
-}
-
 

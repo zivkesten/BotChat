@@ -1,11 +1,12 @@
 package com.zk.lemopoc.backend
 
+import com.google.gson.Gson
 import com.zk.lemopoc.backend.models.ResponseContent
+import com.zk.lemopoc.backend.models.ServerRequest
 import com.zk.lemopoc.backend.models.ServerResponse
 import com.zk.lemopoc.createJsonPayload
 import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.features.chat.models.MessageType
-import com.zk.lemopoc.features.chat.viewModel.parseServerRequest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -63,12 +64,12 @@ class ServerImpl: Server {
 
                 sendMessage(Message(messageType = MessageType.BotTyping))
                 sendMessage(Message(
-                    "Nice to meet you ${prevMsg.textInput} :) ",
+                    ServerConstants.message3 + "${prevMsg.textInput} :)",
                     messageType = MessageType.Bot)
                 )
                 sendMessage(
                     Message(
-                        "What is your phone number?",
+                        ServerConstants.message4,
                         messageType = MessageType.Bot),
                     shouldReply = true
                 )
@@ -76,32 +77,25 @@ class ServerImpl: Server {
             Step.THREE.value -> {
                 sendMessage(Message(messageType = MessageType.BotTyping))
                 sendMessage(Message(
-                    "Do you agree to our terms of service?",
+                    ServerConstants.message5,
                     messageType = MessageType.Bot),
                     shouldReply = true
                 )
             }
             Step.FOUR.value -> {
-                sendMessage(
-                    Message("Thanks!", messageType = MessageType.Bot))
-                sendMessage(
-                    Message(messageType = MessageType.BotTyping))
-                sendMessage(
-                    Message("This is the last step!",
-                    messageType = MessageType.Bot)
-                )
-                sendMessage(
-                    Message(messageType = MessageType.BotTyping))
-                sendMessage(
-                    Message("What do you want to do now?",
+                sendMessage(Message(ServerConstants.message6, messageType = MessageType.Bot))
+                sendMessage(Message(messageType = MessageType.BotTyping))
+                sendMessage(Message(ServerConstants.message7, messageType = MessageType.Bot))
+                sendMessage(Message(messageType = MessageType.BotTyping))
+                sendMessage(Message(
+                    ServerConstants.message8,
                     messageType = MessageType.Bot),
                     shouldReply = true
                 )
             }
             Step.FIVE.value -> {
-                sendMessage(
-                    Message(
-                    "Bye Bye!!", messageType = MessageType.Bot)
+                sendMessage(Message(
+                    ServerConstants.message9, messageType = MessageType.Bot)
                 )
             }
         }
@@ -125,7 +119,7 @@ class ServerImpl: Server {
         sendMessage(defaultMessage())
         sendMessage(Message(messageType = MessageType.BotTyping))
         sendMessage(Message(
-            "What is your name?",
+            ServerConstants.message2,
             messageType = MessageType.Bot
         ), shouldReply = true)
     }
@@ -153,6 +147,10 @@ class ServerImpl: Server {
     }
 
     private fun defaultMessage(): Message {
-        return Message("Hello, I am Ziv!", messageType = MessageType.Bot)
+        return Message(ServerConstants.message1, messageType = MessageType.Bot)
+    }
+
+    private fun parseServerRequest(jsonPayload: String): ServerRequest {
+        return Gson().fromJson(jsonPayload, ServerRequest::class.java)
     }
 }

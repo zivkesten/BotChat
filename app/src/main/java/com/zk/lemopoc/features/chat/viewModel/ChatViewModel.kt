@@ -19,6 +19,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+data class Answer(
+    val content: Content,
+    val currentStep: Step,
+    val shouldReply: Boolean = false
+)
+
 class ChatViewModel(private val repository: ChatRepository): ViewModel() {
 
     private val messageList = mutableListOf<Message>()
@@ -95,11 +101,14 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
             }
             is Event.StartConversation -> startConversation()
             is Event.UserTyping -> {
+                if (!event.typing) {
+                    removeTypingMessageIfNeeded()
+                    return
+                }
                 if (messageList.lastOrNull()?.messageType != MessageType.UserTyping) {
                     messageList.add(Message(messageType = MessageType.UserTyping))
                     postState()
                 }
-
             }
         }
     }
@@ -130,8 +139,4 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
             repository.message(event.message)
         }
     }
-}
-
-fun parseServerRequest(jsonPayload: String): ServerRequest {
-    return Gson().fromJson(jsonPayload, ServerRequest::class.java)
 }
