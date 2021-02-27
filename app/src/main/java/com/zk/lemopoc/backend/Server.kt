@@ -34,6 +34,8 @@ interface Server {
 
 class ServerImpl: Server {
 
+    private val mockIODelayTime: Long = 2000
+
     private var currentStep: Step = Step.ONE
 
     private val _answers = MutableSharedFlow<JsonPayload>()
@@ -53,21 +55,18 @@ class ServerImpl: Server {
     private suspend fun botMessageByStep(step: Step, prevMsg: Message) {
         when (step.value) {
             Step.ONE.value -> {
-                delay(2000)
+                delay(mockIODelayTime)
                 _answers.emit(createJsonPayload(ServerResponse(ResponseContent(), currentStep)))
-                delay(2000)
                 firstStepMessages()
             }
             Step.TWO.value -> {
-                delay(2000)
-                replay(Message(messageType = MessageType.BotTyping))
-                delay(2000)
-                replay(Message(
+
+                sendMessage(Message(messageType = MessageType.BotTyping))
+                sendMessage(Message(
                     "Nice to meet you ${prevMsg.textInput} :) ",
                     messageType = MessageType.Bot)
                 )
-                delay(2000)
-                replay(
+                sendMessage(
                     Message(
                         "What is your phone number?",
                         messageType = MessageType.Bot),
@@ -75,40 +74,32 @@ class ServerImpl: Server {
                 )
             }
             Step.THREE.value -> {
-                delay(2000)
-                replay(Message(messageType = MessageType.BotTyping))
-                delay(2000)
-                replay(Message(
+                sendMessage(Message(messageType = MessageType.BotTyping))
+                sendMessage(Message(
                     "Do you agree to our terms of service?",
                     messageType = MessageType.Bot),
                     shouldReply = true
                 )
             }
             Step.FOUR.value -> {
-                delay(2000)
-                replay(
+                sendMessage(
                     Message("Thanks!", messageType = MessageType.Bot))
-                delay(2000)
-                replay(
+                sendMessage(
                     Message(messageType = MessageType.BotTyping))
-                delay(2000)
-                replay(
+                sendMessage(
                     Message("This is the last step!",
                     messageType = MessageType.Bot)
                 )
-                replay(
+                sendMessage(
                     Message(messageType = MessageType.BotTyping))
-                delay(2000)
-                delay(2000)
-                replay(
+                sendMessage(
                     Message("What do you want to do now?",
                     messageType = MessageType.Bot),
                     shouldReply = true
                 )
             }
             Step.FIVE.value -> {
-                delay(2000)
-                replay(
+                sendMessage(
                     Message(
                     "Bye Bye!!", messageType = MessageType.Bot)
                 )
@@ -116,7 +107,8 @@ class ServerImpl: Server {
         }
     }
 
-    private suspend fun replay(msg1: Message, shouldReply: Boolean = false) {
+    private suspend fun sendMessage(msg1: Message, shouldReply: Boolean = false) {
+        delay(mockIODelayTime)
         _answers.emit(
             createJsonPayload(
                 ServerResponse(
@@ -129,13 +121,10 @@ class ServerImpl: Server {
     }
 
     private suspend fun firstStepMessages() {
-        replay(Message(messageType = MessageType.BotTyping))
-        delay(2000)
-        replay(defaultMessage())
-        delay(2000)
-        replay(Message(messageType = MessageType.BotTyping))
-        delay(2000)
-        replay(Message(
+        sendMessage(Message(messageType = MessageType.BotTyping))
+        sendMessage(defaultMessage())
+        sendMessage(Message(messageType = MessageType.BotTyping))
+        sendMessage(Message(
             "What is your name?",
             messageType = MessageType.Bot
         ), shouldReply = true)
