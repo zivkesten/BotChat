@@ -1,5 +1,6 @@
 package com.zk.lemopoc.features.chat.ui.view
 
+import android.content.Intent
 import android.content.res.Resources
 import android.graphics.PorterDuff
 import android.opengl.Visibility
@@ -19,7 +20,6 @@ import com.zk.lemopoc.features.chat.viewModel.ChatViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 sealed class Event {
-    object StartConversation: Event()
     data class UserTyping(val typing: Boolean): Event()
     data class MessageSent(val message: Message): Event()
 }
@@ -59,6 +59,10 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    override fun onActivityReenter(resultCode: Int, data: Intent?) {
+        super.onActivityReenter(resultCode, data)
+    }
+
     private fun setupViews() {
         setupChatList()
         setupSendButton()
@@ -70,7 +74,6 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerChat.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = chatAdapter
-            viewModel.onEvent(Event.StartConversation)
         }
     }
 

@@ -26,7 +26,6 @@ data class Answer(
 
 class ChatViewModel(private val repository: ChatRepository): ViewModel() {
 
-    // Using a stack
     private val messageList = Stack<Message>()
 
     private val _state = MutableLiveData<UiState>()
@@ -34,8 +33,12 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
     val state: LiveData<UiState> get() = _state
 
     init {
-        viewModelScope.launch {
+        subscribeToAnswerStream()
+        startConversation()
+    }
 
+    private fun subscribeToAnswerStream(){
+        viewModelScope.launch {
             repository.answers.collect { answer ->
                 when (answer.content) {
                     is Content.MessageContent -> {
@@ -51,7 +54,6 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
                             answer.currentStep,
                             answer.shouldReply
                         )
-
                     }
                     is Content.Typing -> {
                         postMessage(Message(
@@ -64,6 +66,16 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
             }
         }
     }
+
+    private fun startConversation() =
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.startConversation()
+        }
+
+    private fun sendToServer(event: Event.MessageSent) =
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.message(event.message)
+        }
 
     private fun postMessage(message: Message, step: Step, enableReply: Boolean) {
 
@@ -99,7 +111,6 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
                     postState()
                 }
             }
-            is Event.StartConversation -> startConversation()
             is Event.UserTyping -> {
                 if (event.typing) {
                     showTypingMessage()
@@ -118,10 +129,10 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
     }
 
     private fun lastMessage(): Message? {
-        // peek at the last message to see if its a typing message, if stack is empty return null
         return try {
             messageList.peek()
         } catch (e: EmptyStackException) {
+            e.printStackTrace()
             null
         }
     }
@@ -137,18 +148,5 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
             messageList.pop()
         }
         postState()
-    }
-
-
-    private fun startConversation() {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.startConversation()
-        }
-    }
-
-    private fun sendToServer(event: Event.MessageSent) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.message(event.message)
-        }
     }
 }
