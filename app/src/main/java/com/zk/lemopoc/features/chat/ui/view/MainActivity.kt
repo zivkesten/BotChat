@@ -1,5 +1,7 @@
 package com.zk.lemopoc.features.chat.ui.view
 
+import android.content.res.Resources
+import android.graphics.PorterDuff
 import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
@@ -75,7 +77,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupInput() {
         binding.inputMessage.onTextChanged { text ->
             // when text is empty remove any error messages
-            if(text.isEmpty()) toggleInputError(View.GONE)
+            if(text.isEmpty()) toggleInputError(View.INVISIBLE)
             // Set a "typing" message when user is currently typing
             viewModel.onEvent(Event.UserTyping(text.isNotEmpty()))
             when (viewModel.state.value?.inputType) {
@@ -84,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                     if (!text.isLetters()) {
                         toggleInputError(View.VISIBLE, getString(R.string.letters_only_warning))
                     } else {
-                        toggleInputError(View.GONE)
+                        toggleInputError(View.INVISIBLE)
                     }
                 }
                 is InputType.NUMBER -> {
@@ -92,7 +94,7 @@ class MainActivity : AppCompatActivity() {
                     if (!text.isDigitsOnly()) {
                         toggleInputError(View.VISIBLE, getString(R.string.numbers_only_warning))
                     } else {
-                        toggleInputError(View.GONE)
+                        toggleInputError(View.INVISIBLE)
                     }
                 }
 
@@ -134,6 +136,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupSendButton() {
+        binding.buttonSend.setColorFilter(resources.getColor(R.color.pink), PorterDuff.Mode.SRC_IN)
         if (binding.inputMessage.text.isEmpty()) {
             binding.buttonSend.isEnabled = false
         }
