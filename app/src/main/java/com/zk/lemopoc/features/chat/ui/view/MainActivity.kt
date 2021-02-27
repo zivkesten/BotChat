@@ -1,5 +1,6 @@
 package com.zk.lemopoc.features.chat.ui.view
 
+import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -7,13 +8,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.isDigitsOnly
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.zk.lemopoc.*
 import com.zk.lemopoc.databinding.ActivityMainBinding
 import com.zk.lemopoc.features.chat.models.Message
 import com.zk.lemopoc.features.chat.models.MessageType
 import com.zk.lemopoc.features.chat.ui.list.MessageListAdapter
 import com.zk.lemopoc.features.chat.viewModel.ChatViewModel
-import com.zk.lemopoc.hideKeyboard
-import com.zk.lemopoc.isLetters
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 sealed class Event {
@@ -73,15 +73,39 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupInput() {
-        binding.inputMessage.addTextChangedListener { text ->
-                viewModel.onEvent(Event.UserTyping(!text.isNullOrEmpty()))
-                text?.let {
-                    when (viewModel.state.value?.inputType) {
-                        is InputType.TEXT -> binding.buttonSend.isEnabled = it.isLetters()
-                        is InputType.NUMBER -> binding.buttonSend.isEnabled = it.isDigitsOnly()
-                        else -> Log.d(TAG, "No action required on selection input state")
+        binding.inputMessage.onTextChanged { text ->
+            // when text is empty remove any error messages
+            if(text.isEmpty()) toggleInputError(View.GONE)
+            // Set a "typing" message when user is currently typing
+            viewModel.onEvent(Event.UserTyping(text.isNotEmpty()))
+            when (viewModel.state.value?.inputType) {
+                is InputType.TEXT -> {
+                    binding.buttonSend.isEnabled = text.isLetters()
+                    if (!text.isLetters()) {
+                        toggleInputError(View.VISIBLE, getString(R.string.letters_only_warning))
+                    } else {
+                        toggleInputError(View.GONE)
                     }
                 }
+                is InputType.NUMBER -> {
+                    binding.buttonSend.isEnabled = text.isDigitsOnly()
+                    if (!text.isDigitsOnly()) {
+                        toggleInputError(View.VISIBLE, getString(R.string.numbers_only_warning))
+                    } else {
+                        toggleInputError(View.GONE)
+                    }
+                }
+
+                else -> Log.d(TAG, "No action required on selection input state")
+            }
+
+        }
+    }
+
+    private fun toggleInputError(visibility: Int, text: String? = null) {
+        binding.inputMessageError.visibility = visibility
+        text?. let {
+            binding.inputMessageError.text = it
         }
     }
 
@@ -113,7 +137,7 @@ class MainActivity : AppCompatActivity() {
         if (binding.inputMessage.text.isEmpty()) {
             binding.buttonSend.isEnabled = false
         }
-        binding.buttonSend.setOnClickListener {
+        binding.buttonSend.setDebounceClickListener {
             val userMessage = binding.inputMessage.text.toString()
             val message = Message(userMessage, messageType = MessageType.User)
             sendMessageEvent(message)

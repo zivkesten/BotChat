@@ -92,7 +92,7 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
     fun onEvent(event: Event) {
         when (event) {
             is Event.MessageSent -> {
-                removeTypingMessageIfNeeded()
+                removeTypingMessage()
                 sendToServer(event)
                 event.message.textInput?.let {
                     messageList.push(event.message)
@@ -101,15 +101,19 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
             }
             is Event.StartConversation -> startConversation()
             is Event.UserTyping -> {
-                if (!event.typing) {
-                    removeTypingMessageIfNeeded()
-                    return
-                }
-                if (lastMessage()?.messageType != MessageType.UserTyping) {
-                    messageList.push(Message(messageType = MessageType.UserTyping))
-                    postState()
+                if (event.typing) {
+                    showTypingMessage()
+                } else {
+                    removeTypingMessage()
                 }
             }
+        }
+    }
+
+    private fun showTypingMessage() {
+        if (lastMessage()?.messageType != MessageType.UserTyping) {
+            messageList.push(Message(messageType = MessageType.UserTyping))
+            postState()
         }
     }
 
@@ -128,9 +132,8 @@ class ChatViewModel(private val repository: ChatRepository): ViewModel() {
         )
     }
 
-    private fun removeTypingMessageIfNeeded() {
-        val lastMessageType = lastMessage()?.messageType
-        if (lastMessageType == MessageType.UserTyping) {
+    private fun removeTypingMessage() {
+        if (lastMessage()?.messageType == MessageType.UserTyping) {
             messageList.pop()
         }
         postState()

@@ -10,73 +10,92 @@
         android:id="@+id/recycler_chat"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="70dp"
         app:layout_constrainedHeight="true"
         android:layoutAnimation="@anim/layout_animation"
         app:layout_constraintBottom_toTopOf="@+id/layout_input"
         app:layout_constraintTop_toTopOf="parent"/>
 
-
     <FrameLayout
         android:id="@+id/layout_input"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/selection_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/selection_layout"
             android:visibility="gone">
 
             <androidx.appcompat.widget.AppCompatButton
-                android:background="@android:color/darker_gray"
                 android:id="@+id/yes_button"
                 android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/darker_gray"
                 android:textColor="@color/black"
-                android:layout_weight="0.5"
-                android:layout_height="match_parent"/>
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/no_button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatButton
-                android:background="@android:color/darker_gray"
                 android:id="@+id/no_button"
                 android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/darker_gray"
                 android:textColor="@color/black"
-                android:layout_weight="0.5"
-                android:layout_height="match_parent"/>
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/yes_button"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        </androidx.appcompat.widget.LinearLayoutCompat>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:id="@+id/input_message_layout">
+
+            <TextView
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/input_message"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="16dp"
+                android:id="@+id/input_message_error"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/red"/>
 
             <EditText
                 android:layout_marginStart="16dp"
                 android:id="@+id/input_message"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toStartOf="@+id/button_send"
                 android:background="@android:color/transparent"
                 android:hint="@string/enter_message"
                 android:inputType="text"
                 android:maxLines="6"
                 tools:ignore="Autofill"
-                android:layout_weight="1"
-                android:layout_gravity="center_vertical"/>
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/button_send"/>
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/button_send"
                 android:layout_width="64dp"
                 android:layout_height="48dp"
-                android:layout_alignParentEnd="true"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:background="?attr/selectableItemBackground"
                 android:src="@drawable/ic_send" />
 
-        </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </FrameLayout>
 
